@@ -10,7 +10,7 @@ namespace Lecture1
 
         private string CheckForNearStreat(string address)
         {         
-            String[] words = address.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
+            var words = address.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
             string streatAddress = default;
 
             foreach (var word in words)
@@ -19,13 +19,12 @@ namespace Lecture1
             return streatAddress;
         }
         private decimal CurrencyExchanger(decimal amount, string currenciesFrom)
-        {
-            
-            decimal USD = 1.19M;
+        {           
+            var coefficientUSD = 1.19M;
 
-            decimal newAmount = currenciesFrom switch
+            var newAmount = currenciesFrom switch
             {
-                "USD" => amount * USD,
+                "USD" => amount * coefficientUSD,
                 _ => amount
             };          
             return newAmount;
@@ -44,8 +43,10 @@ namespace Lecture1
             const decimal discountForChildren = 25;
             const decimal discountForNearbyStreat = 15;
 
-            if (destinations.Count() == clients.Count() && destinations.Count() == prices.Count() && destinations.Count() == currencies.Count())
+            if (destinations.Count() != clients.Count() || destinations.Count() != prices.Count() || destinations.Count() != currencies.Count())
             {
+                return fullPrice;
+            }
 
                 List<decimal> discount = new List<decimal>();
                 List<decimal> listPrices = new List<decimal>();
@@ -56,44 +57,43 @@ namespace Lecture1
                 foreach (var price in prices)                
                     listPrices.Add(price);
 
-                for (int index = 0; index < currencies.Count(); index++)
+                for (var index = 0; index < currencies.Count(); index++)
                 {
                     var currency = currencies.ElementAt(index);                   
-                    if (currency != "USD") listPrices[index] = CurrencyExchanger(listPrices[index], currency);
+                    if (currency != "USD") 
+                        listPrices[index] = CurrencyExchanger(listPrices[index], currency);
                 }
 
-                for (int index = 0; index < destinations.Count(); index++)
+                for (var index = 0; index < destinations.Count(); index++)
                 {
                     var destination = destinations.ElementAt(index);
-                    if (destination.Contains("Wayne Street")) listPrices[index] += 10;
-                    if (destination.Contains("North Heather Street")) listPrices[index] -= 5.36M;
+                    if (destination.Contains("Wayne Street"))
+                        listPrices[index] += 10;
+
+                    if (destination.Contains("North Heather Street"))
+                        listPrices[index] -= 5.36M;
                 }
 
                 foreach (var infantId in infantsIds)
                     discount[infantId - 1] = discountForInfant;
 
                 foreach (var childrenId in childrenIds)
-                    discount[childrenId - 1] = discountForChildren;
-                CheckForNearStreat("address1");
+                    discount[childrenId - 1] = discountForChildren;                
 
                 string pastAddress = default;
-                int pointer = 0;
+                var pointer = 0;
                 foreach (var destination in destinations)
                 {
-                    if (CheckForNearStreat(destination) == pastAddress) discount[pointer] += discountForNearbyStreat;
+                    if (CheckForNearStreat(destination) == pastAddress) 
+                        discount[pointer] += discountForNearbyStreat;
+
                     pointer++;
                     pastAddress = CheckForNearStreat(destination);
                 }
 
-                for (int index = 0; index < destinations.Count(); index++)
-                {
-                   
-                    //Console.WriteLine("{0} ==> {1}", listPrices[index],listPrices[index] - (listPrices[index] / 100) * discount[index]);
+                for (var index = 0; index < destinations.Count(); index++)               
                     fullPrice += listPrices[index] - ( (listPrices[index] / 100) * discount[index]);
-                }
-
-            }
-            
+                          
             return fullPrice;
         }
 
