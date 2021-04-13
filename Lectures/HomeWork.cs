@@ -7,8 +7,11 @@ namespace Lecture
 {
     internal class HomeWork
     {
+        const decimal discountForInfant = 50;
+        const decimal discountForChildren = 25;
+        const decimal discountForNearbyStreat = 15;
 
-        private string CheckForNearStreat(string address)
+        private string PrepareForCheckingNearStreat(string address)
         {
             var words = address.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
             var streetAddress = string.Empty;
@@ -38,10 +41,7 @@ namespace Lecture
                                     IEnumerable<decimal> prices,
                                     IEnumerable<string> currencies)
         {
-            decimal fullPrice = default;
-            const decimal discountForInfant = 50;
-            const decimal discountForChildren = 25;
-            const decimal discountForNearbyStreat = 15;
+            decimal fullPrice = default;          
 
             if (destinations.Count() != clients.Count() || destinations.Count() != prices.Count() || destinations.Count() != currencies.Count())
             {
@@ -50,25 +50,31 @@ namespace Lecture
 
             var discount = new List<decimal>();
             var listPrices = new List<decimal>();
-
-            foreach (var destination in destinations)
-                discount.Add(0);
-
+           
             foreach (var price in prices)
+            {
                 listPrices.Add(price);
+                discount.Add(0);
+            }
 
             for (var index = 0; index < currencies.Count(); index++)
             {
                 var currency = currencies.ElementAt(index);
                 if (currency != "USD")
                     listPrices[index] = CurrencyExchanger(listPrices[index], currency);
-            }            
+            }
 
             foreach (var infantId in infantsIds)
-                discount[infantId - 1] = discountForInfant;
+            {
+                if (infantId <= discount.Count())
+                    discount[infantId] += discountForInfant;
+            }
 
             foreach (var childrenId in childrenIds)
-                discount[childrenId - 1] = discountForChildren;
+            {
+                if (childrenId <= discount.Count())
+                    discount[childrenId] += discountForChildren;
+            }
 
             var pastAddress = string.Empty;
             var pointer = 0;
@@ -80,13 +86,13 @@ namespace Lecture
                 if (destination.Contains("North Heather Street"))
                     listPrices[pointer] -= 5.36M;
 
-                if (CheckForNearStreat(destination) == pastAddress)
+                if (PrepareForCheckingNearStreat(destination) == pastAddress)
                     discount[pointer] += discountForNearbyStreat;
 
                 fullPrice += listPrices[pointer] - ((listPrices[pointer] / 100) * discount[pointer]);
 
                 pointer++;
-                pastAddress = CheckForNearStreat(destination);
+                pastAddress = PrepareForCheckingNearStreat(destination);
             }
                 
             return fullPrice;
