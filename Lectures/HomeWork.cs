@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Lecture1
+namespace Lecture
 {
     internal class HomeWork
     {
 
         private string CheckForNearStreat(string address)
-        {         
+        {
             var words = address.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
-            string streatAddress = default;
+            var streetAddress = string.Empty;
 
             foreach (var word in words)
-                streatAddress += word;         
+                streetAddress += word;
 
-            return streatAddress;
+            return streetAddress;
         }
         private decimal CurrencyExchanger(decimal amount, string currenciesFrom)
-        {           
-            var coefficientUSD = 1.19M;
+        {
+            var coefficientEUR = 1.19M;
 
             var newAmount = currenciesFrom switch
             {
-                "USD" => amount * coefficientUSD,
+                "EUR" => amount * coefficientEUR,
                 _ => amount
-            };          
+            };
             return newAmount;
         }
 
@@ -48,52 +48,47 @@ namespace Lecture1
                 return fullPrice;
             }
 
-                List<decimal> discount = new List<decimal>();
-                List<decimal> listPrices = new List<decimal>();
-              
-                foreach (var destination in destinations)
-                    discount.Add(0);
+            var discount = new List<decimal>();
+            var listPrices = new List<decimal>();
 
-                foreach (var price in prices)                
-                    listPrices.Add(price);
+            foreach (var destination in destinations)
+                discount.Add(0);
 
-                for (var index = 0; index < currencies.Count(); index++)
-                {
-                    var currency = currencies.ElementAt(index);                   
-                    if (currency != "USD") 
-                        listPrices[index] = CurrencyExchanger(listPrices[index], currency);
-                }
+            foreach (var price in prices)
+                listPrices.Add(price);
 
-                for (var index = 0; index < destinations.Count(); index++)
-                {
-                    var destination = destinations.ElementAt(index);
-                    if (destination.Contains("Wayne Street"))
-                        listPrices[index] += 10;
+            for (var index = 0; index < currencies.Count(); index++)
+            {
+                var currency = currencies.ElementAt(index);
+                if (currency != "USD")
+                    listPrices[index] = CurrencyExchanger(listPrices[index], currency);
+            }            
 
-                    if (destination.Contains("North Heather Street"))
-                        listPrices[index] -= 5.36M;
-                }
+            foreach (var infantId in infantsIds)
+                discount[infantId - 1] = discountForInfant;
 
-                foreach (var infantId in infantsIds)
-                    discount[infantId - 1] = discountForInfant;
+            foreach (var childrenId in childrenIds)
+                discount[childrenId - 1] = discountForChildren;
 
-                foreach (var childrenId in childrenIds)
-                    discount[childrenId - 1] = discountForChildren;                
+            var pastAddress = string.Empty;
+            var pointer = 0;
+            foreach (var destination in destinations)
+            {
+                if (destination.Contains("Wayne Street"))
+                    listPrices[pointer] += 10;
 
-                string pastAddress = default;
-                var pointer = 0;
-                foreach (var destination in destinations)
-                {
-                    if (CheckForNearStreat(destination) == pastAddress) 
-                        discount[pointer] += discountForNearbyStreat;
+                if (destination.Contains("North Heather Street"))
+                    listPrices[pointer] -= 5.36M;
 
-                    pointer++;
-                    pastAddress = CheckForNearStreat(destination);
-                }
+                if (CheckForNearStreat(destination) == pastAddress)
+                    discount[pointer] += discountForNearbyStreat;
 
-                for (var index = 0; index < destinations.Count(); index++)               
-                    fullPrice += listPrices[index] - ( (listPrices[index] / 100) * discount[index]);
-                          
+                fullPrice += listPrices[pointer] - ((listPrices[pointer] / 100) * discount[pointer]);
+
+                pointer++;
+                pastAddress = CheckForNearStreat(destination);
+            }
+                
             return fullPrice;
         }
 
