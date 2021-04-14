@@ -66,7 +66,7 @@ namespace Lecture
 
             foreach (var infantId in infantsIds)
             {
-                if (infantId <= discount.Count())
+                if (infantId < discount.Count())
                     discount[infantId] += discountForInfant;
             }
 
